@@ -604,7 +604,7 @@
               ${crumbs}
               <h2>${esc(file)}</h2>
             </div>
-            <div class="meta">${esc(dir || "root")} · ${md.split("\n").length} lines</div>
+            <div class="meta">${esc(dir || "root")} · ${md.split("\n").length} строк</div>
           </div>
           <div class="markdown">${html}</div>
         </div>
@@ -612,13 +612,13 @@
       addCopyButtons(els.content);
       setStatus(`Загрузил ${path}.`);
     } catch (e) {
-      els.content.innerHTML = `<div class="card"><div class="markdown">Error loading <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
+      els.content.innerHTML = `<div class="card"><div class="markdown">Не загрузил <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
       setStatus(`Error loading ${path}: ${e.message}`, true);
     }
   }
 
   async function loadTree() {
-    setStatus("Loading repository tree...");
+    setStatus("Гружусь ёпты...");
     const branch = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/branches/${encodeURIComponent(CONFIG.branch)}`);
     const sha = branch.commit.sha;
     const tree = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/git/trees/${sha}?recursive=1`);
@@ -629,14 +629,14 @@
     allFiles = files;
     totalFolders = collectFolders(buildTree(files)).length;
     expandedFolders = new Set(collectFolders(buildTree(files))); // start fully expanded
-    els.countLabel.textContent = `${files.length} markdown file${files.length === 1 ? "" : "s"}`;
-    setStatus(files.length ? `Загрузил ${files.length} файлов.` : "No markdown files found.");
+    els.countLabel.textContent = `${files.length} файлов${files.length === 1 ? "" : "!!!"}`;
+    setStatus(files.length ? `Загрузил ${files.length} файлов.` : "Файлов-то нету =(.");
     renderFileTree();
     if (files.length) {
       const first = files.find(p => !p.includes("/")) || files[0];
       await openFile(first);
     } else {
-      els.content.innerHTML = `<div class="card"><div class="markdown">No <code>.md</code> files found.</div></div>`;
+      els.content.innerHTML = `<div class="card"><div class="markdown">Нет такого <code>.md</code> файла ёпту.</div></div>`;
     }
   }
 
