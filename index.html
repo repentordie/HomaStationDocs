@@ -5,7 +5,31 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>HomaStationDocs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.2.1/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.woff2">
   <style>
+    @font-face {
+      font-family: "Fira Code Nerd Font";
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.2.1/patched-fonts/FiraCode/Regular/complete/Fira%20Code%20Regular%20Nerd%20Font%20Complete.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Fira Code Nerd Font";
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.2.1/patched-fonts/FiraCode/Medium/complete/Fira%20Code%20Medium%20Nerd%20Font%20Complete.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Fira Code Nerd Font";
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.2.1/patched-fonts/FiraCode/Bold/complete/Fira%20Code%20Bold%20Nerd%20Font%20Complete.woff2") format("woff2");
+    }
+
     :root {
       --bg: #0d1117;
       --panel: #161b22;
@@ -251,7 +275,7 @@
       padding: .15em .4em;
       border-radius: 6px;
       font-size: .88em;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-family: "Fira Code Nerd Font", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
       border: 1px solid var(--border);
     }
     .markdown pre {
@@ -313,7 +337,7 @@
       border-radius: 6px;
       padding: 1px 6px;
       font-size: .82em;
-      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-family: "Fira Code Nerd Font", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     }
 
     .status {
