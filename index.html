@@ -643,12 +643,12 @@
   /* ---------- events ---------- */
   els.search.addEventListener("input", e => renderFileTree(e.target.value));
 
-  els.refresh.addEventListener("click", async () => {
-    mdCache.clear();
-    currentPath = "";
-    renderFileTree();
-    await loadTree();
-  });
+  //els.refresh.addEventListener("click", async () => {
+  //  mdCache.clear();
+  //  currentPath = "";
+  //  renderFileTree();
+  //  await loadTree();
+  //});
 
   els.expandAll.addEventListener("click", () => {
     const folders = collectFolders(buildTree(allFiles));
@@ -657,20 +657,20 @@
     renderFileTree(els.search.value);
   });
 
-  function applyTheme(t) {
-    document.documentElement.setAttribute("data-theme", t);
-    els.theme.textContent = t === "light" ? "🌙 Dark" : "☀️ Light";
-    try { localStorage.setItem("theme", t); } catch (e) {}
-  }
-  els.theme.addEventListener("click", () => {
-    const cur = document.documentElement.getAttribute("data-theme");
-    applyTheme(cur === "light" ? "dark" : "light");
-  });
-  (function initTheme() {
-    let saved = "dark";
-    try { saved = localStorage.getItem("theme") || "dark"; } catch (e) {}
-    applyTheme(saved);
-  })();
+  //function applyTheme(t) {
+  //  document.documentElement.setAttribute("data-theme", t);
+  //  els.theme.textContent = t === "light" ? "🌙 Dark" : "☀️ Light";
+  //  try { localStorage.setItem("theme", t); } catch (e) {}
+  //}
+  //els.theme.addEventListener("click", () => {
+  //  const cur = document.documentElement.getAttribute("data-theme");
+  //  applyTheme(cur === "light" ? "dark" : "light");
+  //});
+  //(function initTheme() {
+  //  let saved = "dark";
+  //  try { saved = localStorage.getItem("theme") || "dark"; } catch (e) {}
+  //  applyTheme(saved);
+  //})();
 
   loadTree().catch(err => {
     setStatus(`Failed: ${err.message}`, true);
