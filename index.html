@@ -367,7 +367,7 @@
 <div class="layout">
   <aside>
     <div class="controls">
-      <input id="search" type="search" placeholder="Filter files…" />
+      <input id="search" type="search" placeholder="Поиск" />
       <div class="top-actions">
         <button id="expandAll">Распидорасить</button>
       </div>
@@ -416,7 +416,7 @@
   let totalFolders = 0;
 
   els.repoLabel.textContent = `${CONFIG.owner}/${CONFIG.repo}`;
-  els.branchLabel.innerHTML = `branch: <code>${CONFIG.branch}</code>`;
+  els.branchLabel.innerHTML = `ветка: <code>${CONFIG.branch}</code>`;
 
   marked.setOptions({ breaks: true, gfm: true });
 
@@ -630,7 +630,7 @@
     totalFolders = collectFolders(buildTree(files)).length;
     expandedFolders = new Set(collectFolders(buildTree(files))); // start fully expanded
     els.countLabel.textContent = `${files.length} markdown file${files.length === 1 ? "" : "s"}`;
-    setStatus(files.length ? `Loaded ${files.length} markdown files.` : "No markdown files found.");
+    setStatus(files.length ? `Загрузил ${files.length} файлов.` : "No markdown files found.");
     renderFileTree();
     if (files.length) {
       const first = files.find(p => !p.includes("/")) || files[0];
