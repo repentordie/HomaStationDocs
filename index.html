@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HomaStationDocs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #0b1220;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --link: #58a6ff;
+      --link2: #79c0ff;
+      --code: #f0f6fc;
+      --accent: #2ea043;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0d1117 0%, #0b1220 100%);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .sub code, .pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 2px 8px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: calc(100vh - 72px);
+    }
+    aside {
+      border-right: 1px solid var(--border);
+      background: var(--panel-2);
+      overflow: auto;
+      padding: 16px;
+    }
+    main {
+      overflow: auto;
+      padding: 20px;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 0 0 12px;
+      font-size: 14px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    input, button, select {
+      width: 100%;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+    input::placeholder { color: var(--muted); }
+    button {
+      cursor: pointer;
+      transition: transform .08s ease, border-color .08s ease;
+    }
+    button:hover { border-color: #58a6ff66; }
+    button:active { transform: translateY(1px); }
+    .controls { display: grid; gap: 10px; margin-bottom: 14px; }
+    .file-list {
+      display: grid;
+      gap: 6px;
+    }
+    .file {
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .file:hover { background: #1f293733; border-color: var(--border); }
+    .file.active { background: #1f6feb33; border-color: #1f6feb66; }
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+    .card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 18px;
+      word-break: break-word;
+    }
+    .meta { color: var(--muted); font-size: 13px; }
+    .markdown {
+      padding: 18px 18px 24px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+    .markdown a { color: var(--link); }
+    .markdown a:hover { color: var(--link2); }
+    .markdown pre {
+      background: #010409;
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 10px;
+      overflow: auto;
+    }
+    .markdown code {
+      background: #010409;
+      color: var(--code);
+      padding: 0.15em 0.35em;
+      border-radius: 6px;
+      font-size: 0.95em;
+    }
+    .markdown pre code {
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+      display: block;
+    }
+    .markdown blockquote {
+      border-left: 4px solid #30363d;
+      margin-left: 0;
+      padding-left: 14px;
+      color: var(--muted);
+    }
+    .markdown table {
+      border-collapse: collapse;
+      width: 100%;
+      display: block;
+      overflow: auto;
+    }
+    .markdown th, .markdown td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+    }
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 8px;
+      white-space: pre-wrap;
+    }
+    .error { color: #ff7b72; }
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid #58a6ff33;
+      border-top-color: #58a6ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      vertical-align: -2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .top-actions button, .top-actions select {
+      width: auto;
+    }
+    .hint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--border); }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <h1>HomaStation Docs</h1>
+  <div class="sub">
+    <span class="pill" id="repoLabel">Грузим…</span>
+    <span id="branchLabel">branch: <code>main</code></span>
+    <span id="countLabel">0 markdown files</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Filter files…" />
+      <div class="top-actions">
+        <button id="refresh">Refresh</button>
+        <button id="expandAll">Expand all</button>
+      </div>
+      <div id="status" class="status"><span class="loading"></span> Loading files…</div>
+    </div>
+
+    <div class="section-title">
+      <span>Markdown files</span>
+    </div>
+    <div id="fileList" class="file-list"></div>
+    <div class="hint">
+      Works on GitHub Pages for public repos. Set the repo data at the top of the script.
+    </div>
+  </aside>
+
+  <main>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<script>
+  const CONFIG = {
+    owner: "repentordie",
+    repo: "HomaStationDocs",
+    branch: "main",
+    apiBase: "https://api.github.com",
+    rawBase: "https://raw.githubusercontent.com"
+  };
+
+  const els = {
+    repoLabel: document.getElementById("repoLabel"),
+    branchLabel: document.getElementById("branchLabel"),
+    countLabel: document.getElementById("countLabel"),
+    status: document.getElementById("status"),
+    fileList: document.getElementById("fileList"),
+    content: document.getElementById("content"),
+    search: document.getElementById("search"),
+    refresh: document.getElementById("refresh"),
+    expandAll: document.getElementById("expandAll")
+  };
+
+  let allFiles = [];
+  let currentPath = "";
+  let mdCache = new Map();
+
+  els.repoLabel.textContent = `${CONFIG.owner}/${CONFIG.repo}`;
+  els.branchLabel.innerHTML = `branch: <code>${CONFIG.branch}</code>`;
+
+  marked.setOptions({
+    breaks: true,
+    gfm: true
+  });
+
+  function esc(s) {
+    return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function setStatus(msg, isError = false) {
+    els.status.className = "status" + (isError ? " error" : "");
+    els.status.textContent = msg;
+  }
+
+  async function fetchJSON(url) {
+    const r = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return r.json();
+  }
+
+  async function loadTree() {
+    setStatus("Loading repository tree...");
+    const branch = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/branches/${encodeURIComponent(CONFIG.branch)}`);
+    const sha = branch.commit.sha;
+    const tree = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/git/trees/${sha}?recursive=1`);
+    const files = (tree.tree || [])
+      .filter(x => x.type === "blob" && /\.md$/i.test(x.path))
+      .map(x => x.path)
+      .sort((a,b) => a.localeCompare(b));
+    allFiles = files;
+    els.countLabel.textContent = `${files.length} markdown file${files.length === 1 ? "" : "s"}`;
+    setStatus(files.length ? `Loaded ${files.length} markdown files.` : "No markdown files found.");
+    renderFileList(files);
+    if (files.length) await openFile(files[0]);
+    else els.content.innerHTML = `<div class="card"><div class="markdown">No <code>.md</code> files found.</div></div>`;
+  }
+
+  function renderFileList(files) {
+    els.fileList.innerHTML = "";
+    for (const path of files) {
+      const btn = document.createElement("button");
+      btn.className = "file" + (path === currentPath ? " active" : "");
+      btn.title = path;
+      btn.textContent = path;
+      btn.onclick = () => openFile(path);
+      els.fileList.appendChild(btn);
+    }
+  }
+
+  async function getMarkdown(path) {
+    if (mdCache.has(path)) return mdCache.get(path);
+    const url = `${CONFIG.rawBase}/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}/${path}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Failed to load ${path}`);
+    const text = await r.text();
+    mdCache.set(path, text);
+    return text;
+  }
+
+  async function openFile(path) {
+    currentPath = path;
+    [...els.fileList.querySelectorAll(".file")].forEach(el => el.classList.toggle("active", el.textContent === path));
+    setStatus(`Loading ${path}...`);
+    try {
+      const md = await getMarkdown(path);
+      const html = DOMPurify.sanitize(marked.parse(md));
+      els.content.innerHTML = `
+        <div class="card">
+          <div class="card-head">
+            <h2>${esc(path)}</h2>
+            <div class="meta">${md.split("\n").length} lines</div>
+          </div>
+          <div class="markdown">${html}</div>
+        </div>
+      `;
+      setStatus(`Loaded ${path}.`);
+      els.search.dispatchEvent(new Event("input"));
+    } catch (e) {
+      els.content.innerHTML = `<div class="card"><div class="markdown">Error loading <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
+      setStatus(`Error loading ${path}: ${e.message}`, true);
+    }
+  }
+
+  function filterFiles(q) {
+    q = q.trim().toLowerCase();
+    const filtered = q ? allFiles.filter(p => p.toLowerCase().includes(q)) : allFiles.slice();
+    renderFileList(filtered);
+  }
+
+  els.search.addEventListener("input", e => filterFiles(e.target.value));
+  els.refresh.addEventListener("click", async () => {
+    mdCache.clear();
+    currentPath = "";
+    await loadTree();
+  });
+  els.expandAll.addEventListener("click", async () => {
+    if (!allFiles.length) return;
+    const batch = allFiles.slice(0, 20);
+    setStatus(`Rendering ${batch.length} files...`);
+    const chunks = [];
+    for (const path of batch) {
+      try {
+        const md = await getMarkdown(path);
+        chunks.push(`
+          <section class="card">
+            <div class="card-head">
+              <h2>${esc(path)}</h2>
+              <div class="meta">wiki entry</div>
+            </div>
+            <div class="markdown">${DOMPurify.sanitize(marked.parse(md))}</div>
+          </section>
+        `);
+      } catch (e) {
+        chunks.push(`<section class="card"><div class="markdown">Error loading ${esc(path)}</div></section>`);
+      }
+    }
+    els.content.innerHTML = chunks.join("");
+    setStatus(`Rendered ${batch.length} files.`);
+  });
+
+  loadTree().catch(err => {
+    setStatus(`Failed: ${err.message}`, true);
+    els.content.innerHTML = `
+      <div class="card">
+        <div class="markdown">
+          <p><strong>Could not load repository data.</strong></p>
+          <p>Check that:</p>
+          <ul>
+            <li>The repo is public.</li>
+            <li><code>owner</code>, <code>repo</code>, and <code>branch</code> are set correctly.</li>
+            <li>GitHub API rate limits are not being hit.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  });
+</script>
+</body>
+</html>
