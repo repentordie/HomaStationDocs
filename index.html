@@ -357,11 +357,10 @@
 </head>
 <body>
 <header>
-  <h1>HomaStation Docs</h1>
   <div class="sub">
     <span class="pill" id="repoLabel">Loading…</span>
-    <span id="branchLabel">branch: <code>main</code></span>
-    <span id="countLabel">0 markdown files</span>
+    <span id="branchLabel">ветка: <code>main</code></span>
+    <span id="countLabel">0 всего файлов</span>
   </div>
 </header>
 
@@ -370,19 +369,14 @@
     <div class="controls">
       <input id="search" type="search" placeholder="Filter files…" />
       <div class="top-actions">
-        <button id="refresh">Refresh</button>
-        <button id="expandAll">Expand all</button>
-        <button id="theme" title="Toggle light / dark">☀️ Light</button>
+        <button id="expandAll">Распидорасить</button>
       </div>
       <div id="status" class="status"><span class="loading"></span> Loading files…</div>
     </div>
 
-    <div class="section-title">
-      <span>Markdown files</span>
-    </div>
     <div id="fileList" class="file-list"></div>
     <div class="hint">
-      Works on GitHub Pages for public repos. Set the repo data at the top of the script.
+      тут был леп и клод код
     </div>
   </aside>
 
@@ -532,7 +526,7 @@
     renderNode(root, els.fileList, q, 0);
     if (!q) {
       const allOpen = totalFolders > 0 && expandedFolders.size >= totalFolders;
-      els.expandAll.textContent = allOpen ? "Collapse all" : "Expand all";
+      els.expandAll.textContent = allOpen ? "Выпидорасить" : "Распидорасить";
     }
   }
 
@@ -616,7 +610,7 @@
         </div>
       `;
       addCopyButtons(els.content);
-      setStatus(`Loaded ${path}.`);
+      setStatus(`Загрузил ${path}.`);
     } catch (e) {
       els.content.innerHTML = `<div class="card"><div class="markdown">Error loading <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
       setStatus(`Error loading ${path}: ${e.message}`, true);
