@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HomaStationDocs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Unicase:wght@300;400;500;600;700&family=Dela+Gothic+One&family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-2: #0b1220;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --link: #58a6ff;
+      --link2: #79c0ff;
+      --code-fg: #f0f6fc;
+      --code-bg: #010409;
+      --accent: #2ea043;
+      --shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
+    :root[data-theme="light"] {
+      --bg: #ffffff;
+      --panel: #f6f8fa;
+      --panel-2: #eef1f4;
+      --border: #d0d7de;
+      --text: #1f2328;
+      --muted: #656d76;
+      --link: #0969da;
+      --link2: #0550ae;
+      --code-fg: #1f2328;
+      --code-bg: #f6f8fa;
+      --accent: #1a7f37;
+      --shadow: 0 8px 30px rgba(31,35,40,.12);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Fira Code", monospace;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(180deg, #0d1117 0%, #0b1220 100%);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    :root[data-theme="light"] header {
+      background: linear-gradient(180deg, #ffffff 0%, #f6f8fa 100%);
+    }
+    h1 { margin: 0 0 8px; font-size: 20px; letter-spacing: -.01em; }
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .sub code, .pill {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 2px 9px;
+      border-radius: 999px;
+      color: var(--text);
+      font-size: 12px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      min-height: calc(100vh - 73px);
+    }
+    aside {
+      border-right: 1px solid var(--border);
+      background: var(--panel-2);
+      overflow: auto;
+      padding: 16px;
+    }
+    main {
+      overflow: auto;
+      padding: 22px;
+    }
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 4px 0 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      font-weight: 600;
+    }
+    input, button, select {
+      width: 100%;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+    input::placeholder { color: var(--muted); }
+    button {
+      cursor: pointer;
+      transition: transform .08s ease, border-color .08s ease, background .1s ease, color .1s ease;
+    }
+    button:hover { border-color: color-mix(in srgb, var(--link) 45%, var(--border)); }
+    button:active { transform: translateY(1px); }
+    .controls { display: grid; gap: 10px; margin-bottom: 6px; }
+    .file-list {
+      display: grid;
+      gap: 2px;
+      margin-top: 4px;
+    }
+
+    /* ---- tree ---- */
+    .folder, .file {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      width: 100%;
+      text-align: left;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text);
+      padding: 7px 10px;
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+      transition: background .1s ease, border-color .1s ease;
+    }
+    .folder:hover, .file:hover { background: rgba(127,127,127,.14); }
+    .file { overflow: hidden; }
+    .file .label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .file.active {
+      background: color-mix(in srgb, var(--link) 16%, transparent);
+      border-color: color-mix(in srgb, var(--link) 40%, transparent);
+      color: var(--link2);
+    }
+    .ico { color: var(--muted); display: inline-flex; flex: 0 0 auto; }
+    .file .ico { color: var(--link); }
+    .chev {
+      width: 0; height: 0;
+      border-style: solid;
+      border-width: 4px 0 4px 6px;
+      border-color: transparent transparent transparent var(--muted);
+      margin: 0 1px;
+      flex: 0 0 auto;
+      transition: transform .15s ease;
+    }
+    .folder.open .chev { transform: rotate(90deg); }
+    .file-name { font-size: 13px; }
+    .label { font-size: 13px; }
+
+    .content {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 18px;
+      box-shadow: var(--shadow);
+    }
+    .card-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--panel) 80%, var(--bg)), var(--panel));
+    }
+    .head-main { min-width: 0; }
+    .crumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+    .crumbs .crumb {
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      padding: 1px 8px;
+      border-radius: 999px;
+    }
+    .card-head h2 {
+      margin: 0;
+      font-size: 18px;
+      word-break: break-word;
+      letter-spacing: -.01em;
+    }
+    .meta { color: var(--muted); font-size: 12.5px; text-align: right; flex: 0 0 auto; }
+
+    /* ---- markdown ---- */
+    .markdown {
+      padding: 22px 26px 30px;
+      line-height: 1.65;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+      color: var(--text);
+    }
+    .markdown > *:first-child { margin-top: 0; }
+    .markdown > *:last-child { margin-bottom: 0; }
+    .markdown h1, .markdown h2, .markdown h3, .markdown h4, .markdown h5, .markdown h6 {
+      line-height: 1.3;
+      margin: 1.6em 0 .6em;
+      font-weight: 650;
+      scroll-margin-top: 84px;
+    }
+    .markdown h1 { font-size: 1.7em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+    .markdown h2 { font-size: 1.4em; padding-bottom: .3em; border-bottom: 1px solid var(--border); }
+    .markdown h3 { font-size: 1.18em; }
+    .markdown h4 { font-size: 1.02em; }
+    .markdown h5 { font-size: .92em; color: var(--muted); }
+    .markdown h6 { font-size: .85em; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+    .markdown p { margin: .8em 0; }
+    .markdown a { color: var(--link); text-decoration: none; border-bottom: 1px solid transparent; }
+    .markdown a:hover { color: var(--link2); border-bottom-color: var(--link2); }
+    .markdown ul, .markdown ol { padding-left: 1.6em; margin: .8em 0; }
+    .markdown li { margin: .3em 0; }
+    .markdown li::marker { color: var(--muted); }
+    .markdown li.task-list-item { display: flex; align-items: flex-start; gap: .55em; list-style: none; }
+    .markdown li.task-list-item input { width: auto; margin: .3em 0 0; accent-color: var(--accent); flex: 0 0 auto; }
+    .markdown ul:has(> li.task-list-item) { padding-left: 0; }
+    .markdown blockquote {
+      border-left: 4px solid var(--accent);
+      margin: 1em 0;
+      padding: .35em 1em;
+      color: var(--muted);
+      background: color-mix(in srgb, var(--accent) 7%, transparent);
+      border-radius: 0 8px 8px 0;
+    }
+    .markdown blockquote p { margin: .45em 0; }
+    .markdown code {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: .15em .4em;
+      border-radius: 6px;
+      font-size: .88em;
+      font-family: "Fira Code Nerd Font", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      border: 1px solid var(--border);
+    }
+    .markdown pre {
+      position: relative;
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      border-radius: 10px;
+      overflow: auto;
+      line-height: 1.5;
+    }
+    .markdown pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-size: .85em;
+      color: var(--code-fg);
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: auto;
+      padding: 4px 9px;
+      font-size: 11px;
+      border-radius: 6px;
+      background: var(--panel);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity .15s ease, color .1s ease, border-color .1s ease;
+    }
+    .markdown pre:hover .copy-btn { opacity: 1; }
+    .copy-btn:hover { color: var(--text); border-color: var(--link); }
+    .copy-btn.copied { color: var(--accent); border-color: var(--accent); }
+    .markdown img {
+      max-width: 100%;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      margin: .5em 0;
+    }
+    .markdown hr { border: 0; border-top: 1px solid var(--border); margin: 1.6em 0; }
+    .markdown table {
+      border-collapse: collapse;
+      width: 100%;
+      display: block;
+      overflow: auto;
+      margin: 1em 0;
+      font-size: .92em;
+    }
+    .markdown th, .markdown td { border: 1px solid var(--border); padding: 8px 12px; }
+    .markdown thead th { background: var(--panel-2); font-weight: 650; }
+    .markdown tbody tr:nth-child(even) { background: rgba(127,127,127,.05); }
+    .markdown kbd {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      padding: 1px 6px;
+      font-size: .82em;
+      font-family: "Fira Code Nerd Font", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    }
+
+    .status {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
+    .error { color: #ff7b72; }
+    .loading {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border: 2px solid color-mix(in srgb, var(--link) 22%, transparent);
+      border-top-color: var(--link);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      vertical-align: -2px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .top-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .top-actions button, .top-actions select {
+      width: auto;
+      flex: 1 1 auto;
+    }
+    .hint {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--border); max-height: 42vh; }
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="sub">
+    <span class="pill" id="repoLabel">Loading…</span>
+    <span id="branchLabel">ветка: <code>main</code></span>
+    <span id="countLabel">0 всего файлов</span>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="controls">
+      <input id="search" type="search" placeholder="Поиск" />
+      <div class="top-actions">
+        <button id="expandAll">Распидорасить</button>
+      </div>
+      <div id="status" class="status"><span class="loading"></span> Loading files…</div>
+    </div>
+
+    <div id="fileList" class="file-list"></div>
+    <div class="hint">
+      тут был леп, клод код и точка джи
+    </div>
+  </aside>
+
+  <main>
+    <div class="content" id="content"></div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+<script>
+  const CONFIG = {
+    owner: "repentordie",
+    repo: "HomaStationDocs",
+    branch: "main",
+    apiBase: "https://api.github.com",
+    rawBase: "https://raw.githubusercontent.com"
+  };
+
+  const els = {
+    repoLabel: document.getElementById("repoLabel"),
+    branchLabel: document.getElementById("branchLabel"),
+    countLabel: document.getElementById("countLabel"),
+    status: document.getElementById("status"),
+    fileList: document.getElementById("fileList"),
+    content: document.getElementById("content"),
+    search: document.getElementById("search"),
+    refresh: document.getElementById("refresh"),
+    expandAll: document.getElementById("expandAll"),
+    theme: document.getElementById("theme")
+  };
+
+  let allFiles = [];
+  let currentPath = "";
+  let mdCache = new Map();
+  let expandedFolders = new Set();   // folder paths that are open
+  let totalFolders = 0;
+
+  els.repoLabel.textContent = `${CONFIG.owner}/${CONFIG.repo}`;
+  els.branchLabel.innerHTML = `ветка: <code>${CONFIG.branch}</code>`;
+
+  marked.setOptions({ breaks: true, gfm: true });
+
+  const ICON_FOLDER = `<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M1.75 1A1.75 1.75 0 0 0 0 2.75v10.5C0 14.216.784 15 1.75 15h12.5A1.75 1.75 0 0 0 16 13.25v-8.5A1.75 1.75 0 0 0 14.25 3H7.5L6 1.5H1.75z"/></svg>`;
+  const ICON_FILE = `<svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="currentColor"><path d="M2 1.75C2 .784 2.784 0 3.75 0h6.586c.464 0 .909.184 1.237.513l2.914 2.914c.329.328.513.773.513 1.237v9.586A1.75 1.75 0 0 1 13.25 16h-9.5A1.75 1.75 0 0 1 2 14.25Zm1.75-.25a.25.25 0 0 0-.25.25v12.5c0 .138.112.25.25.25h9.5a.25.25 0 0 0 .25-.25V6h-2.75A1.75 1.75 0 0 1 9 4.25V1.5Zm6.75.062V4.25c0 .138.112.25.25.25h2.688l-.011-.013-2.914-2.914-.013-.011Z"/></svg>`;
+
+  function esc(s) {
+    return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  }
+
+  function setStatus(msg, isError = false) {
+    els.status.className = "status" + (isError ? " error" : "");
+    els.status.textContent = msg;
+  }
+
+  async function fetchJSON(url) {
+    const r = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+    if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+    return r.json();
+  }
+
+  /* ---------- tree ---------- */
+  function buildTree(paths) {
+    const root = { type: "folder", name: "", path: "", children: new Map() };
+    for (const path of paths) {
+      const parts = path.split("/");
+      let node = root;
+      let acc = "";
+      for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+        acc = acc ? acc + "/" + part : part;
+        const isFile = i === parts.length - 1;
+        if (!node.children.has(part)) {
+          node.children.set(part, { type: isFile ? "file" : "folder", name: part, path: acc, children: new Map() });
+        }
+        node = node.children.get(part);
+      }
+    }
+    return root;
+  }
+
+  function sortChildren(map) {
+    return [...map.values()].sort((a, b) => {
+      if (a.type !== b.type) return a.type === "folder" ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+  }
+
+  function collectFolders(node) {
+    const out = [];
+    for (const c of node.children.values()) {
+      if (c.type === "folder") { out.push(c.path); out.push(...collectFolders(c)); }
+    }
+    return out;
+  }
+
+  function filterTree(node, q) {
+    const out = { type: "folder", name: node.name, path: node.path, children: new Map() };
+    for (const child of node.children.values()) {
+      if (child.type === "file") {
+        if (child.path.toLowerCase().includes(q)) out.children.set(child.name, child);
+      } else {
+        const sub = filterTree(child, q);
+        if (sub.children.size) out.children.set(child.name, sub);
+      }
+    }
+    return out;
+  }
+
+  function renderNode(node, parentEl, q, depth) {
+    for (const child of sortChildren(node.children)) {
+      if (child.type === "folder") {
+        const isOpen = q ? true : expandedFolders.has(child.path);
+        const row = document.createElement("div");
+        const btn = document.createElement("button");
+        btn.className = "folder" + (isOpen ? " open" : "");
+        btn.style.paddingLeft = (10 + depth * 15) + "px";
+        btn.innerHTML = `<span class="chev"></span><span class="ico">${ICON_FOLDER}</span><span class="label">${esc(child.name)}</span>`;
+        btn.onclick = () => {
+          if (expandedFolders.has(child.path)) expandedFolders.delete(child.path);
+          else expandedFolders.add(child.path);
+          renderFileTree(els.search.value);
+        };
+        row.appendChild(btn);
+        parentEl.appendChild(row);
+        if (isOpen) {
+          const inner = document.createElement("div");
+          parentEl.appendChild(inner);
+          renderNode(child, inner, q, depth + 1);
+        }
+      } else {
+        const btn = document.createElement("button");
+        btn.className = "file" + (child.path === currentPath ? " active" : "");
+        btn.style.paddingLeft = (10 + depth * 15) + "px";
+        btn.title = child.path;
+        btn.innerHTML = `<span class="ico">${ICON_FILE}</span><span class="label">${esc(child.name)}</span>`;
+        btn.onclick = () => openFile(child.path);
+        parentEl.appendChild(btn);
+      }
+    }
+  }
+
+  function renderFileTree(query = "") {
+    const q = query.trim().toLowerCase();
+    els.fileList.innerHTML = "";
+    const root = q ? filterTree(buildTree(allFiles), q) : buildTree(allFiles);
+    renderNode(root, els.fileList, q, 0);
+    if (!q) {
+      const allOpen = totalFolders > 0 && expandedFolders.size >= totalFolders;
+      els.expandAll.textContent = allOpen ? "Выпидорасить" : "Распидорасить";
+    }
+  }
+
+  function expandAncestors(path) {
+    const parts = path.split("/");
+    let acc = "";
+    for (let i = 0; i < parts.length - 1; i++) {
+      acc = acc ? acc + "/" + parts[i] : parts[i];
+      expandedFolders.add(acc);
+    }
+  }
+
+  /* ---------- markdown ---------- */
+  function toSafeHtml(md) {
+    let html = DOMPurify.sanitize(marked.parse(md));
+    const tmp = document.createElement("div");
+    tmp.innerHTML = html;
+    const first = tmp.firstElementChild;
+    if (first && first.tagName === "H1") first.remove(); // filename already shown in card head
+    return tmp.innerHTML;
+  }
+
+  function addCopyButtons(root) {
+    root.querySelectorAll("pre").forEach(pre => {
+      const code = pre.querySelector("code");
+      const btn = document.createElement("button");
+      btn.className = "copy-btn";
+      btn.type = "button";
+      btn.textContent = "Copy";
+      btn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code ? code.innerText : pre.innerText);
+          btn.textContent = "Copied";
+          btn.classList.add("copied");
+          setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("copied"); }, 1500);
+        } catch (e) { /* clipboard unavailable */ }
+      });
+      pre.appendChild(btn);
+    });
+  }
+
+  function breadcrumbHtml(path) {
+    const parts = path.split("/");
+    const file = parts.pop();
+    const dirCrumbs = parts.length
+      ? `<nav class="crumbs">${parts.map(p => `<span class="crumb">${esc(p)}</span>`).join("")}</nav>`
+      : `<nav class="crumbs"><span class="crumb">root</span></nav>`;
+    return { file, crumbs: dirCrumbs, dir: parts.join(" / ") };
+  }
+
+  /* ---------- data ---------- */
+  async function getMarkdown(path) {
+    if (mdCache.has(path)) return mdCache.get(path);
+    const url = `${CONFIG.rawBase}/${CONFIG.owner}/${CONFIG.repo}/${CONFIG.branch}/${path}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Failed to load ${path}`);
+    const text = await r.text();
+    mdCache.set(path, text);
+    return text;
+  }
+
+  async function openFile(path) {
+    currentPath = path;
+    expandAncestors(path);
+    renderFileTree(els.search.value);
+    setStatus(`Loading ${path}...`);
+    try {
+      const md = await getMarkdown(path);
+      const { file, crumbs, dir } = breadcrumbHtml(path);
+      const html = toSafeHtml(md);
+      els.content.innerHTML = `
+        <div class="card">
+          <div class="card-head">
+            <div class="head-main">
+              ${crumbs}
+              <h2>${esc(file)}</h2>
+            </div>
+            <div class="meta">${esc(dir || "root")} · ${md.split("\n").length} строк</div>
+          </div>
+          <div class="markdown">${html}</div>
+        </div>
+      `;
+      addCopyButtons(els.content);
+      setStatus(`Загрузил ${path}.`);
+    } catch (e) {
+      els.content.innerHTML = `<div class="card"><div class="markdown">Не загрузил <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
+      setStatus(`Error loading ${path}: ${e.message}`, true);
+    }
+  }
+
+  async function loadTree() {
+    setStatus("Гружусь ёпты...");
+    const branch = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/branches/${encodeURIComponent(CONFIG.branch)}`);
+    const sha = branch.commit.sha;
+    const tree = await fetchJSON(`${CONFIG.apiBase}/repos/${CONFIG.owner}/${CONFIG.repo}/git/trees/${sha}?recursive=1`);
+    const files = (tree.tree || [])
+      .filter(x => x.type === "blob" && /\.md$/i.test(x.path))
+      .map(x => x.path)
+      .sort((a, b) => a.localeCompare(b));
+    allFiles = files;
+    totalFolders = collectFolders(buildTree(files)).length;
+    expandedFolders = new Set(collectFolders(buildTree(files))); // start fully expanded
+    els.countLabel.textContent = `${files.length} файлов${files.length === 1 ? "" : "!!!"}`;
+    setStatus(files.length ? `Загрузил ${files.length} файлов.` : "Файлов-то нету =(.");
+    renderFileTree();
+    if (files.length) {
+      const first = files.find(p => !p.includes("/")) || files[0];
+      await openFile(first);
+    } else {
+      els.content.innerHTML = `<div class="card"><div class="markdown">Нет такого <code>.md</code> файла ёпту.</div></div>`;
+    }
+  }
+
+  /* ---------- events ---------- */
+  els.search.addEventListener("input", e => renderFileTree(e.target.value));
+
+  //els.refresh.addEventListener("click", async () => {
+  //  mdCache.clear();
+  //  currentPath = "";
+  //  renderFileTree();
+  //  await loadTree();
+  //});
+
+  els.expandAll.addEventListener("click", () => {
+    const folders = collectFolders(buildTree(allFiles));
+    if (folders.length && expandedFolders.size >= folders.length) expandedFolders.clear();
+    else folders.forEach(p => expandedFolders.add(p));
+    renderFileTree(els.search.value);
+  });
+
+  //function applyTheme(t) {
+  //  document.documentElement.setAttribute("data-theme", t);
+  //  els.theme.textContent = t === "light" ? "🌙 Dark" : "☀️ Light";
+  //  try { localStorage.setItem("theme", t); } catch (e) {}
+  //}
+  //els.theme.addEventListener("click", () => {
+  //  const cur = document.documentElement.getAttribute("data-theme");
+  //  applyTheme(cur === "light" ? "dark" : "light");
+  //});
+  //(function initTheme() {
+  //  let saved = "dark";
+  //  try { saved = localStorage.getItem("theme") || "dark"; } catch (e) {}
+  //  applyTheme(saved);
+  //})();
+
+  loadTree().catch(err => {
+    setStatus(`Failed: ${err.message}`, true);
+    els.content.innerHTML = `
+      <div class="card">
+        <div class="markdown">
+          <p><strong>Could not load repository data.</strong></p>
+          <p>Check that:</p>
+          <ul>
+            <li>The repo is public.</li>
+            <li><code>owner</code>, <code>repo</code>, and <code>branch</code> are set correctly.</li>
+            <li>GitHub API rate limits are not being hit.</li>
+          </ul>
+        </div>
+      </div>
+    `;
+  });
+</script>
+</body>
+</html>
