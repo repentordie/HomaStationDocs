@@ -371,6 +371,7 @@
     <div class="controls">
       <input id="search" type="search" placeholder="Поиск" />
       <div class="top-actions">
+        <button id="copyLink" title="Скопировать ссылку на текущую статью">🔗 Ссылка</button>
         <button id="expandAll">Распидорасить</button>
       </div>
       <div id="status" class="status"><span class="loading"></span> Loading files…</div>
@@ -408,6 +409,7 @@
     search: document.getElementById("search"),
     refresh: document.getElementById("refresh"),
     expandAll: document.getElementById("expandAll"),
+    copyLink: document.getElementById("copyLink"),
     theme: document.getElementById("theme")
   };
 
@@ -590,8 +592,22 @@
     return text;
   }
 
-  async function openFile(path) {
+  /* ---------- routing (shareable per-article links) ---------- */
+  function getInitialPath() {
+    const p = new URLSearchParams(location.search).get("p");
+    return p ? decodeURIComponent(p) : "";
+  }
+
+  // Reflect the current article in the address bar so the URL is copy-shareable.
+  function updateUrl(path) {
+    const q = "p=" + encodeURIComponent(path);
+    if ((location.search || "").replace(/^\?/, "") === q) return; // already current
+    history.pushState({ path }, "", location.pathname + "?" + q);
+  }
+
+  async function openFile(path, opts = {}) {
     currentPath = path;
+    if (opts.push !== false) updateUrl(path);
     expandAncestors(path);
     renderFileTree(els.search.value);
     setStatus(`Loading ${path}...`);
@@ -599,6 +615,7 @@
       const md = await getMarkdown(path);
       const { file, crumbs, dir } = breadcrumbHtml(path);
       const html = toSafeHtml(md);
+      document.title = file.replace(/\.md$/i, "") + " · HomaStationDocs";
       els.content.innerHTML = `
         <div class="card">
           <div class="card-head">
@@ -614,6 +631,7 @@
       addCopyButtons(els.content);
       setStatus(`Загрузил ${path}.`);
     } catch (e) {
+      document.title = "HomaStationDocs";
       els.content.innerHTML = `<div class="card"><div class="markdown">Не загрузил <code>${esc(path)}</code>: ${esc(e.message)}</div></div>`;
       setStatus(`Error loading ${path}: ${e.message}`, true);
     }
@@ -635,8 +653,11 @@
     setStatus(files.length ? `Загрузил ${files.length} файлов.` : "Файлов-то нету =(.");
     renderFileTree();
     if (files.length) {
-      const first = files.find(p => !p.includes("/")) || files[0];
-      await openFile(first);
+      const requested = getInitialPath();
+      const target = (requested && files.includes(requested))
+        ? requested
+        : (files.find(p => !p.includes("/")) || files[0]);
+      await openFile(target);
     } else {
       els.content.innerHTML = `<div class="card"><div class="markdown">Нет такого <code>.md</code> файла ёпту.</div></div>`;
     }
@@ -644,6 +665,25 @@
 
   /* ---------- events ---------- */
   els.search.addEventListener("input", e => renderFileTree(e.target.value));
+
+  els.copyLink.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(location.href);
+      const btn = els.copyLink;
+      const txt = btn.textContent;
+      btn.textContent = "✓ Скопировано";
+      setTimeout(() => { btn.textContent = txt; }, 1500);
+    } catch (e) { /* clipboard blocked */ }
+  });
+
+  // Browser back/forward: re-open the article encoded in the URL.
+  window.addEventListener("popstate", () => {
+    const p = getInitialPath();
+    const target = (p && allFiles.includes(p))
+      ? p
+      : (allFiles.find(f => !f.includes("/")) || allFiles[0]);
+    if (target) openFile(target, { push: false });
+  });
 
   //els.refresh.addEventListener("click", async () => {
   //  mdCache.clear();
